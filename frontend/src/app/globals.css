@@ -6,6 +6,8 @@
   --secondary-purple: #753991;
   --navy-dark: #032147;
   --gray-text: #888888;
+  --font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+  --font-display: "Gill Sans", "Trebuchet MS", "Avenir Next", sans-serif;
   --surface: #f7f8fb;
   --surface-strong: #ffffff;
   --stroke: rgba(3, 33, 71, 0.08);
