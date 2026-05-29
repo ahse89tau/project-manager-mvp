@@ -4,6 +4,8 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from app.db import ensure_user, get_connection, get_or_create_board, init_db, update_board
+from app.schemas import BoardState
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SESSION_COOKIE_NAME = "pm_session"
@@ -35,6 +37,7 @@ def resolve_static_site_dir() -> Path:
 SITE_DIR = resolve_static_site_dir()
 
 app = FastAPI(title="Project Management MVP API", version="0.1.0")
+init_db()
 
 
 class LoginRequest(BaseModel):
@@ -79,6 +82,30 @@ def login(payload: LoginRequest, response: Response) -> dict[str, bool]:
 def logout(response: Response) -> dict[str, bool]:
     response.delete_cookie(key=SESSION_COOKIE_NAME)
     return {"authenticated": False}
+
+
+def require_authenticated_username(request: Request) -> str:
+    if request.cookies.get(SESSION_COOKIE_NAME) != "1":
+        raise HTTPException(status_code=401, detail="Authentication required")
+    return DEMO_USERNAME
+
+
+@app.get("/api/board")
+def read_board(request: Request) -> dict:
+    username = require_authenticated_username(request)
+    with get_connection() as conn:
+        user_id = ensure_user(conn, username)
+        board = get_or_create_board(conn, user_id)
+    return board.model_dump(by_alias=True)
+
+
+@app.put("/api/board")
+def save_board(payload: BoardState, request: Request) -> dict[str, object]:
+    username = require_authenticated_username(request)
+    with get_connection() as conn:
+        user_id = ensure_user(conn, username)
+        saved_board = update_board(conn, user_id, payload)
+    return {"saved": True, "board": saved_board.model_dump(by_alias=True)}
 
 
 app.mount("/", StaticFiles(directory=SITE_DIR, html=True), name="site")

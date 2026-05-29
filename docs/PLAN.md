@@ -129,30 +129,30 @@ This is the working plan for the Project Management MVP.
 
 - [x] Approved schema doc exists and is implementation-ready.
 - [x] Structured output contract is documented and unambiguous.
-- [ ] User approval captured before coding Part 6.
+- [x] User approval captured before coding Part 6.
 
 ## Part 6: Backend Kanban APIs
 
 ### Checklist
 
-- [ ] Implement DB initialization (create SQLite DB if absent).
-- [ ] Implement user-scoped board read API.
-- [ ] Implement board update API for card/column changes.
-- [ ] Add validation and error handling for malformed payloads.
-- [ ] Keep routes and models straightforward and minimal.
+- [x] Implement DB initialization (create SQLite DB if absent).
+- [x] Implement user-scoped board read API.
+- [x] Implement board update API for card/column changes.
+- [x] Add validation and error handling for malformed payloads.
+- [x] Keep routes and models straightforward and minimal.
 
 ### Tests
 
-- [ ] Backend unit tests for service/repository logic.
-- [ ] API integration tests for read/update flows.
-- [ ] Negative tests for invalid payloads and auth failures.
-- [ ] Backend test coverage is tracked pragmatically; expand tests where they add value.
+- [x] Backend unit tests for service/repository logic.
+- [x] API integration tests for read/update flows.
+- [x] Negative tests for invalid payloads and auth failures.
+- [x] Backend test coverage is tracked pragmatically; expand tests where they add value.
 
 ### Success Criteria
 
-- [ ] Board state persists across restarts.
-- [ ] Authenticated user can fetch and update board.
-- [ ] Backend unit test coverage is reasonable for implemented risk.
+- [x] Board state persists across restarts.
+- [x] Authenticated user can fetch and update board.
+- [x] Backend unit test coverage is reasonable for implemented risk.
 
 ## Part 7: Frontend + Backend Integration
 
