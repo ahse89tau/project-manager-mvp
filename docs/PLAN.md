@@ -23,7 +23,7 @@ This is the working plan for the Project Management MVP.
 - [x] Create `frontend/AGENTS.md` documenting the existing frontend codebase structure, commands, and conventions.
 - [x] Update `backend/AGENTS.md` with backend conventions for FastAPI, `uv`, testing, and SQLite usage.
 - [x] Update `scripts/AGENTS.md` with script naming and behavior conventions.
-- [ ] Request and obtain user approval before any implementation.
+- [x] Request and obtain user approval before any implementation.
 
 ### Tests
 
@@ -34,37 +34,37 @@ This is the working plan for the Project Management MVP.
 
 - [x] `docs/PLAN.md` is complete and unambiguous.
 - [x] `frontend/AGENTS.md` exists and accurately describes current frontend.
-- [ ] User explicitly approves plan before Part 2 starts.
+- [x] User explicitly approves plan before Part 2 starts.
 
 ## Part 2: Scaffolding (Docker + FastAPI + Scripts)
 
 ### Checklist
 
-- [ ] Create backend app scaffold in `backend/` with FastAPI.
-- [ ] Configure Python dependency management with `uv`.
-- [ ] Add Docker setup to run backend and serve basic static content.
-- [ ] Add hello-world endpoint(s) and sample API route.
+- [x] Create backend app scaffold in `backend/` with FastAPI.
+- [x] Configure Python dependency management with `uv`.
+- [x] Add Docker setup to run backend and serve basic static content.
+- [x] Add hello-world endpoint(s) and sample API route.
 - [ ] Add start/stop scripts:
-  - [ ] `scripts/start_mac.sh`
-  - [ ] `scripts/stop_mac.sh`
-  - [ ] `scripts/start_linux.sh`
-  - [ ] `scripts/stop_linux.sh`
-  - [ ] `scripts/start_windows.bat`
-  - [ ] `scripts/stop_windows.bat`
-- [ ] Ensure scripts work from project root with clear output.
+  - [x] `scripts/start_mac.sh`
+  - [x] `scripts/stop_mac.sh`
+  - [x] `scripts/start_linux.sh`
+  - [x] `scripts/stop_linux.sh`
+  - [x] `scripts/start_windows.bat`
+  - [x] `scripts/stop_windows.bat`
+- [x] Ensure scripts work from project root with clear output.
 
 ### Tests
 
-- [ ] Backend unit tests for startup health route(s).
-- [ ] Integration test for API call from running container.
-- [ ] Script smoke tests on current platform; static validation for other platform scripts.
+- [x] Backend unit tests for startup health route(s).
+- [x] Integration test for API call from running container.
+- [x] Script smoke tests on current platform; static validation for other platform scripts.
 
 ### Success Criteria
 
-- [ ] `docker` run brings up app locally.
-- [ ] `/` serves basic static hello-world page.
-- [ ] API route responds successfully.
-- [ ] Start/stop scripts are present and functional.
+- [x] `docker` run brings up app locally.
+- [x] `/` serves basic static hello-world page.
+- [x] API route responds successfully.
+- [x] Start/stop scripts are present and functional.
 
 ## Part 3: Serve Existing Frontend at `/`
 
