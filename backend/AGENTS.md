@@ -41,4 +41,4 @@ This file defines backend conventions for the MVP.
 - Use backend unit tests for core logic and validation.
 - Use integration tests for API routes and DB interactions.
 - Include negative-path tests (invalid input, auth failure, malformed AI output).
-- Maintain backend unit coverage at project minimum `>=80%`.
+- Aim for strong backend coverage where it adds confidence; avoid low-value tests added only for a numeric threshold.

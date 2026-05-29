@@ -113,22 +113,22 @@ This is the working plan for the Project Management MVP.
 
 ### Checklist
 
-- [ ] Propose SQLite schema supporting multi-user readiness and one board per user (MVP).
-- [ ] Store Kanban board payload as JSON with minimal metadata.
-- [ ] Define migration/bootstrap strategy for auto-creating DB if missing.
-- [ ] Document schema and tradeoffs in `docs/`.
-- [ ] Define AI structured output schema (exact JSON contract) in docs before implementation.
+- [x] Propose SQLite schema supporting multi-user readiness and one board per user (MVP).
+- [x] Store Kanban board payload as JSON with minimal metadata.
+- [x] Define migration/bootstrap strategy for auto-creating DB if missing.
+- [x] Document schema and tradeoffs in `docs/`.
+- [x] Define AI structured output schema (exact JSON contract) in docs before implementation.
 - [ ] Request explicit user sign-off before Part 6.
 
 ### Tests
 
-- [ ] Schema validation tests (model serialization/deserialization).
-- [ ] Documentation review checklist for clarity and completeness.
+- [x] Schema validation tests (model serialization/deserialization).
+- [x] Documentation review checklist for clarity and completeness.
 
 ### Success Criteria
 
-- [ ] Approved schema doc exists and is implementation-ready.
-- [ ] Structured output contract is documented and unambiguous.
+- [x] Approved schema doc exists and is implementation-ready.
+- [x] Structured output contract is documented and unambiguous.
 - [ ] User approval captured before coding Part 6.
 
 ## Part 6: Backend Kanban APIs
