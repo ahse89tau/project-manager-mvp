@@ -118,7 +118,7 @@ This is the working plan for the Project Management MVP.
 - [x] Define migration/bootstrap strategy for auto-creating DB if missing.
 - [x] Document schema and tradeoffs in `docs/`.
 - [x] Define AI structured output schema (exact JSON contract) in docs before implementation.
-- [ ] Request explicit user sign-off before Part 6.
+- [x] Request explicit user sign-off before Part 6.
 
 ### Tests
 
