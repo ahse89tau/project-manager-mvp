@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from app.ai import board_chat as ai_board_chat
 from app.ai import chat as ai_chat
 from app.db import ensure_user, get_connection, get_or_create_board, init_db, update_board
 from app.schemas import BoardState
@@ -109,11 +110,46 @@ def save_board(payload: BoardState, request: Request) -> dict[str, object]:
     return {"saved": True, "board": saved_board.model_dump(by_alias=True)}
 
 
+class ConversationMessage(BaseModel):
+    role: str
+    content: str
+
+
+class AIChatRequest(BaseModel):
+    message: str
+    history: list[ConversationMessage] = []
+
+
 @app.get("/api/ai/ping")
 def ai_ping(request: Request) -> dict[str, str]:
     require_authenticated_username(request)
     answer = ai_chat("What is 2+2? Answer with just the number.")
     return {"response": answer}
+
+
+@app.post("/api/ai/chat")
+def ai_chat_endpoint(payload: AIChatRequest, request: Request) -> dict:
+    username = require_authenticated_username(request)
+
+    with get_connection() as conn:
+        user_id = ensure_user(conn, username)
+        board = get_or_create_board(conn, user_id)
+
+    history = [{"role": m.role, "content": m.content} for m in payload.history]
+    ai_response = ai_board_chat(board, payload.message, history)
+
+    board_updated = False
+    if ai_response.apply_board_update and ai_response.updated_board is not None:
+        with get_connection() as conn:
+            user_id = ensure_user(conn, username)
+            update_board(conn, user_id, ai_response.updated_board)
+        board_updated = True
+
+    return {
+        "assistantMessage": ai_response.assistant_message,
+        "applyBoardUpdate": ai_response.apply_board_update,
+        "boardUpdated": board_updated,
+    }
 
 
 app.mount("/", StaticFiles(directory=SITE_DIR, html=True), name="site")

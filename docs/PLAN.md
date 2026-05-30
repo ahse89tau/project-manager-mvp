@@ -201,27 +201,27 @@ This is the working plan for the Project Management MVP.
 
 ### Checklist
 
-- [ ] Send board JSON + user message + conversation history to AI.
-- [ ] Enforce documented structured output schema from Part 5.
-- [ ] Parse AI response into:
-  - [ ] User-facing assistant message
-  - [ ] Optional board mutation payload
-- [ ] Validate mutation payload before applying DB updates.
+- [x] Send board JSON + user message + conversation history to AI.
+- [x] Enforce documented structured output schema from Part 5.
+- [x] Parse AI response into:
+  - [x] User-facing assistant message
+  - [x] Optional board mutation payload
+- [x] Validate mutation payload before applying DB updates.
 
 ### Tests
 
-- [ ] Unit tests for schema validation and parser behavior.
-- [ ] Integration tests for:
-  - [ ] Message-only responses
-  - [ ] Message + valid board update
-  - [ ] Invalid structured output fallback behavior
-- [ ] Regression tests for preserving board integrity.
+- [x] Unit tests for schema validation and parser behavior.
+- [x] Integration tests for:
+  - [x] Message-only responses
+  - [x] Message + valid board update
+  - [x] Invalid structured output fallback behavior
+- [x] Regression tests for preserving board integrity.
 
 ### Success Criteria
 
-- [ ] AI responses are reliably parsed into documented schema.
-- [ ] Optional board updates are applied only when valid.
-- [ ] Invalid outputs do not corrupt persisted board data.
+- [x] AI responses are reliably parsed into documented schema.
+- [x] Optional board updates are applied only when valid.
+- [x] Invalid outputs do not corrupt persisted board data.
 
 ## Part 10: Frontend AI Sidebar UX
 
