@@ -4,6 +4,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from app.ai import chat as ai_chat
 from app.db import ensure_user, get_connection, get_or_create_board, init_db, update_board
 from app.schemas import BoardState
 
@@ -106,6 +107,13 @@ def save_board(payload: BoardState, request: Request) -> dict[str, object]:
         user_id = ensure_user(conn, username)
         saved_board = update_board(conn, user_id, payload)
     return {"saved": True, "board": saved_board.model_dump(by_alias=True)}
+
+
+@app.get("/api/ai/ping")
+def ai_ping(request: Request) -> dict[str, str]:
+    require_authenticated_username(request)
+    answer = ai_chat("What is 2+2? Answer with just the number.")
+    return {"response": answer}
 
 
 app.mount("/", StaticFiles(directory=SITE_DIR, html=True), name="site")

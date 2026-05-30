@@ -180,22 +180,22 @@ This is the working plan for the Project Management MVP.
 
 ### Checklist
 
-- [ ] Add backend OpenRouter client using `OPENROUTER_API_KEY` from project `.env`.
-- [ ] Use model `openai/gpt-oss-120b:free`.
-- [ ] Add minimal AI route/service for connectivity check.
-- [ ] Implement simple `"2+2"` health-style AI test path.
+- [x] Add backend OpenRouter client using `OPENROUTER_API_KEY` from project `.env`.
+- [x] Use model `openai/gpt-oss-120b:free`.
+- [x] Add minimal AI route/service for connectivity check.
+- [x] Implement simple `"2+2"` health-style AI test path.
 
 ### Tests
 
-- [ ] Unit tests with mocked OpenRouter client.
-- [ ] Integration test for successful API invocation (real key when available).
-- [ ] Error-path tests for missing/invalid API key.
+- [x] Unit tests with mocked OpenRouter client.
+- [x] Integration test for successful API invocation (real key when available).
+- [x] Error-path tests for missing/invalid API key.
 
 ### Success Criteria
 
-- [ ] Backend can call OpenRouter successfully.
-- [ ] `"2+2"` sanity check returns an AI response.
-- [ ] Failures are handled with clear API errors.
+- [x] Backend can call OpenRouter successfully.
+- [x] `"2+2"` sanity check returns an AI response.
+- [x] Failures are handled with clear API errors.
 
 ## Part 9: AI with Board Context + Structured Output
 
