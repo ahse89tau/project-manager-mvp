@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,11 +13,22 @@ import {
 } from "@dnd-kit/core";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
-import { createId, initialData, moveCard, type BoardData } from "@/lib/kanban";
+import { fetchBoard, saveBoard } from "@/lib/api";
+import { createId, moveCard, type BoardData } from "@/lib/kanban";
+
+const loadErrorMessage = "Unable to load board. Please try again.";
+const saveErrorMessage = "Could not save board changes. Please retry.";
 
 export const KanbanBoard = () => {
-  const [board, setBoard] = useState<BoardData>(() => initialData);
+  const [board, setBoard] = useState<BoardData | null>(null);
   const [activeCardId, setActiveCardId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  const pendingSaveCount = useRef(0);
+  const latestBoardRef = useRef<BoardData | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -25,7 +36,64 @@ export const KanbanBoard = () => {
     })
   );
 
-  const cardsById = useMemo(() => board.cards, [board.cards]);
+  const loadBoard = useCallback(async () => {
+    setIsLoading(true);
+    setLoadError("");
+
+    try {
+      const nextBoard = await fetchBoard();
+      setBoard(nextBoard);
+      latestBoardRef.current = nextBoard;
+    } catch {
+      setLoadError(loadErrorMessage);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const persistBoard = useCallback(async (nextBoard: BoardData) => {
+    pendingSaveCount.current += 1;
+    setIsSaving(true);
+    setSaveError("");
+
+    try {
+      await saveBoard(nextBoard);
+    } catch {
+      setSaveError(saveErrorMessage);
+    } finally {
+      pendingSaveCount.current -= 1;
+      if (pendingSaveCount.current <= 0) {
+        pendingSaveCount.current = 0;
+        setIsSaving(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadBoard();
+  }, [loadBoard]);
+
+  const applyBoardUpdate = useCallback(
+    (updater: (prev: BoardData) => BoardData, persist = true) => {
+      setBoard((prev) => {
+        if (!prev) {
+          return prev;
+        }
+
+        const nextBoard = updater(prev);
+        latestBoardRef.current = nextBoard;
+
+        if (persist) {
+          void persistBoard(nextBoard);
+        }
+
+        return nextBoard;
+      });
+    },
+    [persistBoard]
+  );
+
+  const cardsById = useMemo(() => board?.cards ?? {}, [board?.cards]);
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveCardId(event.active.id as string);
@@ -35,28 +103,48 @@ export const KanbanBoard = () => {
     const { active, over } = event;
     setActiveCardId(null);
 
-    if (!over || active.id === over.id) {
+    if (!board || !over || active.id === over.id) {
       return;
     }
 
-    setBoard((prev) => ({
+    applyBoardUpdate((prev) => ({
       ...prev,
       columns: moveCard(prev.columns, active.id as string, over.id as string),
     }));
   };
 
   const handleRenameColumn = (columnId: string, title: string) => {
-    setBoard((prev) => ({
+    applyBoardUpdate(
+      (prev) => ({
+        ...prev,
+        columns: prev.columns.map((column) =>
+          column.id === columnId ? { ...column, title } : column
+        ),
+      }),
+      false
+    );
+  };
+
+  const handleRenameColumnCommit = (columnId: string) => {
+    applyBoardUpdate((prev) => ({
       ...prev,
-      columns: prev.columns.map((column) =>
-        column.id === columnId ? { ...column, title } : column
-      ),
+      columns: prev.columns.map((column) => {
+        if (column.id !== columnId) {
+          return column;
+        }
+
+        const nextTitle = column.title.trim();
+        return {
+          ...column,
+          title: nextTitle || "Untitled",
+        };
+      }),
     }));
   };
 
   const handleAddCard = (columnId: string, title: string, details: string) => {
     const id = createId("card");
-    setBoard((prev) => ({
+    applyBoardUpdate((prev) => ({
       ...prev,
       cards: {
         ...prev.cards,
@@ -71,23 +159,57 @@ export const KanbanBoard = () => {
   };
 
   const handleDeleteCard = (columnId: string, cardId: string) => {
-    setBoard((prev) => {
-      return {
-        ...prev,
-        cards: Object.fromEntries(
-          Object.entries(prev.cards).filter(([id]) => id !== cardId)
-        ),
-        columns: prev.columns.map((column) =>
-          column.id === columnId
-            ? {
-                ...column,
-                cardIds: column.cardIds.filter((id) => id !== cardId),
-              }
-            : column
-        ),
-      };
-    });
+    applyBoardUpdate((prev) => ({
+      ...prev,
+      cards: Object.fromEntries(
+        Object.entries(prev.cards).filter(([id]) => id !== cardId)
+      ),
+      columns: prev.columns.map((column) =>
+        column.id === columnId
+          ? {
+              ...column,
+              cardIds: column.cardIds.filter((id) => id !== cardId),
+            }
+          : column
+      ),
+    }));
   };
+
+  const handleRetrySave = () => {
+    if (latestBoardRef.current) {
+      void persistBoard(latestBoardRef.current);
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <main className="grid min-h-screen place-items-center px-6 py-8">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
+          Loading board...
+        </p>
+      </main>
+    );
+  }
+
+  if (!board) {
+    return (
+      <main className="grid min-h-screen place-items-center px-6 py-8">
+        <section className="w-full max-w-lg rounded-3xl border border-[var(--stroke)] bg-white p-8 shadow-[var(--shadow)]">
+          <h1 className="font-display text-3xl text-[var(--navy-dark)]">Kanban Studio</h1>
+          <p className="mt-3 text-sm text-[var(--gray-text)]" role="alert">
+            {loadError || loadErrorMessage}
+          </p>
+          <button
+            type="button"
+            onClick={() => void loadBoard()}
+            className="mt-6 rounded-full bg-[var(--secondary-purple)] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-95"
+          >
+            Retry
+          </button>
+        </section>
+      </main>
+    );
+  }
 
   const activeCard = activeCardId ? cardsById[activeCardId] : null;
 
@@ -118,6 +240,25 @@ export const KanbanBoard = () => {
               <p className="mt-2 text-lg font-semibold text-[var(--primary-blue)]">
                 One board. Five columns. Zero clutter.
               </p>
+              {isSaving ? (
+                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--primary-blue)]">
+                  Saving changes...
+                </p>
+              ) : null}
+              {saveError ? (
+                <div className="mt-2">
+                  <p className="text-xs font-semibold text-[var(--secondary-purple)]" role="alert">
+                    {saveError}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleRetrySave}
+                    className="mt-2 rounded-full border border-[var(--secondary-purple)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--secondary-purple)]"
+                  >
+                    Retry save
+                  </button>
+                </div>
+              ) : null}
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-4">
@@ -146,6 +287,7 @@ export const KanbanBoard = () => {
                 column={column}
                 cards={column.cardIds.map((cardId) => board.cards[cardId])}
                 onRename={handleRenameColumn}
+                onRenameCommit={handleRenameColumnCommit}
                 onAddCard={handleAddCard}
                 onDeleteCard={handleDeleteCard}
               />

@@ -158,23 +158,23 @@ This is the working plan for the Project Management MVP.
 
 ### Checklist
 
-- [ ] Replace frontend demo-only state with backend API calls.
-- [ ] Load persisted board after login.
-- [ ] Persist board edits and drag/drop moves through backend APIs.
-- [ ] Add loading and error states for network requests.
+- [x] Replace frontend demo-only state with backend API calls.
+- [x] Load persisted board after login.
+- [x] Persist board edits and drag/drop moves through backend APIs.
+- [x] Add loading and error states for network requests.
 
 ### Tests
 
-- [ ] Frontend unit tests for API client and state transitions.
-- [ ] Integration tests for edit/move/persist/reload workflows.
-- [ ] End-to-end test for full login + board persistence path.
-- [ ] Frontend test coverage is tracked pragmatically; expand tests where they add value.
+- [x] Frontend unit tests for API client and state transitions.
+- [x] Integration tests for edit/move/persist/reload workflows.
+- [x] End-to-end test for full login + board persistence path.
+- [x] Frontend test coverage is tracked pragmatically; expand tests where they add value.
 
 ### Success Criteria
 
-- [ ] Board changes persist and reload correctly.
-- [ ] User interactions remain responsive.
-- [ ] Frontend unit test coverage is reasonable for implemented risk.
+- [x] Board changes persist and reload correctly.
+- [x] User interactions remain responsive.
+- [x] Frontend unit test coverage is reasonable for implemented risk.
 
 ## Part 8: OpenRouter Connectivity
 
