@@ -118,6 +118,17 @@ const mockBackend = async (page: Page) => {
       return;
     }
 
+    if (url.pathname === "/api/ai/chat" && request.method() === "POST") {
+      await route.fulfill({
+        json: {
+          assistantMessage: "I can help with that!",
+          applyBoardUpdate: false,
+          boardUpdated: false,
+        },
+      });
+      return;
+    }
+
     await route.fallback();
   });
 };
@@ -152,6 +163,75 @@ test("persists an added card after reload", async ({ page }) => {
   await page.reload();
   await expect(page.locator('[data-testid^="column-"]')).toHaveCount(5);
   await expect(firstColumn.getByText("Playwright card")).toBeVisible();
+});
+
+test("opens AI sidebar and receives a response", async ({ page }) => {
+  await login(page);
+
+  await page.getByRole("button", { name: /ask ai/i }).click();
+  await expect(page.getByRole("complementary", { name: /ai assistant/i })).toBeVisible();
+
+  await page.getByRole("textbox", { name: /message/i }).fill("What should I work on?");
+  await page.getByRole("button", { name: /send message/i }).click();
+
+  await expect(page.getByText("I can help with that!")).toBeVisible();
+});
+
+test("closes AI sidebar with close button", async ({ page }) => {
+  await login(page);
+
+  await page.getByRole("button", { name: /ask ai/i }).click();
+  await expect(page.getByRole("complementary", { name: /ai assistant/i })).toBeVisible();
+
+  await page.getByRole("button", { name: /close ai sidebar/i }).click();
+  await expect(page.getByRole("complementary", { name: /ai assistant/i })).not.toBeVisible();
+});
+
+test("AI sidebar refreshes board after a mutation", async ({ page }) => {
+  let boardFetchCount = 0;
+
+  await page.route("**/api/ai/chat", async (route) => {
+    const updatedBoard = seedBoard();
+    updatedBoard.cards["card-new"] = {
+      id: "card-new",
+      title: "AI added card",
+      details: "Added by AI.",
+    };
+    updatedBoard.columns[0].cardIds.push("card-new");
+    await route.fulfill({
+      json: {
+        assistantMessage: "Added a new card for you.",
+        applyBoardUpdate: true,
+        boardUpdated: true,
+      },
+    });
+  });
+
+  await page.route("**/api/board", async (route) => {
+    if (route.request().method() === "GET") {
+      boardFetchCount += 1;
+      const updatedBoard = seedBoard();
+      if (boardFetchCount > 1) {
+        updatedBoard.cards["card-new"] = {
+          id: "card-new",
+          title: "AI added card",
+          details: "Added by AI.",
+        };
+        updatedBoard.columns[0].cardIds.push("card-new");
+      }
+      await route.fulfill({ json: updatedBoard });
+      return;
+    }
+    await route.fallback();
+  });
+
+  await login(page);
+  await page.getByRole("button", { name: /ask ai/i }).click();
+  await page.getByRole("textbox", { name: /message/i }).fill("Add a card");
+  await page.getByRole("button", { name: /send message/i }).click();
+
+  await expect(page.getByText("Added a new card for you.")).toBeVisible();
+  await expect(page.getByText("AI added card")).toBeVisible();
 });
 
 test("persists a renamed column after reload", async ({ page }) => {

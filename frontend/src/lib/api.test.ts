@@ -1,4 +1,4 @@
-import { ApiError, fetchBoard, saveBoard } from "@/lib/api";
+import { ApiError, fetchBoard, saveBoard, sendAIMessage } from "@/lib/api";
 import { initialData } from "@/lib/kanban";
 
 const mockJsonResponse = (body: unknown, ok = true, status = 200) =>
@@ -63,6 +63,40 @@ describe("api client", () => {
       name: "ApiError",
       status: 422,
       message: "invalid board",
+    });
+  });
+
+  it("sendAIMessage sends message and history with auth credentials", async () => {
+    const aiResponse = {
+      assistantMessage: "Done.",
+      applyBoardUpdate: false,
+      boardUpdated: false,
+    };
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(mockJsonResponse(aiResponse));
+
+    const history = [{ role: "user", content: "previous" }];
+    const result = await sendAIMessage("new message", history);
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/ai/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "new message", history }),
+      credentials: "include",
+    });
+    expect(result).toEqual(aiResponse);
+  });
+
+  it("sendAIMessage throws ApiError when request fails", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(
+      mockJsonResponse({ detail: "AI unavailable" }, false, 503)
+    );
+
+    await expect(sendAIMessage("hello", [])).rejects.toMatchObject<ApiError>({
+      name: "ApiError",
+      status: 503,
+      message: "AI unavailable",
     });
   });
 });

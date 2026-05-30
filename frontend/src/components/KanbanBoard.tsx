@@ -13,6 +13,7 @@ import {
 } from "@dnd-kit/core";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
+import { AISidebar } from "@/components/AISidebar";
 import { fetchBoard, saveBoard } from "@/lib/api";
 import { createId, moveCard, type BoardData } from "@/lib/kanban";
 
@@ -26,6 +27,7 @@ export const KanbanBoard = () => {
   const [loadError, setLoadError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const pendingSaveCount = useRef(0);
   const latestBoardRef = useRef<BoardData | null>(null);
@@ -36,8 +38,8 @@ export const KanbanBoard = () => {
     })
   );
 
-  const loadBoard = useCallback(async () => {
-    setIsLoading(true);
+  const loadBoard = useCallback(async (silent = false) => {
+    if (!silent) setIsLoading(true);
     setLoadError("");
 
     try {
@@ -47,7 +49,7 @@ export const KanbanBoard = () => {
     } catch {
       setLoadError(loadErrorMessage);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   }, []);
 
@@ -214,7 +216,7 @@ export const KanbanBoard = () => {
   const activeCard = activeCardId ? cardsById[activeCardId] : null;
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       <div className="pointer-events-none absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/3 -translate-y-1/3 rounded-full bg-[radial-gradient(circle,_rgba(32,157,215,0.25)_0%,_rgba(32,157,215,0.05)_55%,_transparent_70%)]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-[520px] w-[520px] translate-x-1/4 translate-y-1/4 rounded-full bg-[radial-gradient(circle,_rgba(117,57,145,0.18)_0%,_rgba(117,57,145,0.05)_55%,_transparent_75%)]" />
 
@@ -233,7 +235,24 @@ export const KanbanBoard = () => {
                 and capture quick notes without getting buried in settings.
               </p>
             </div>
-            <div className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-5 py-4">
+            <div className="flex items-start gap-3">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(true)}
+                className="flex items-center gap-2 rounded-full border border-[var(--secondary-purple)] bg-white px-4 py-2.5 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--secondary-purple)] transition hover:bg-[var(--secondary-purple)] hover:text-white"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                  <path
+                    d="M7 1C3.69 1 1 3.46 1 6.5c0 1.25.45 2.4 1.2 3.3L1.5 12l2.4-.9A6.2 6.2 0 007 12c3.31 0 6-2.46 6-5.5S10.31 1 7 1z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
+                </svg>
+                Ask AI
+              </button>
+              <div className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-5 py-4">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--gray-text)]">
                 Focus
               </p>
@@ -259,6 +278,7 @@ export const KanbanBoard = () => {
                   </button>
                 </div>
               ) : null}
+              </div>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-4">
@@ -302,6 +322,12 @@ export const KanbanBoard = () => {
           </DragOverlay>
         </DndContext>
       </main>
+
+      <AISidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        onBoardUpdated={() => void loadBoard(true)}
+      />
     </div>
   );
 };

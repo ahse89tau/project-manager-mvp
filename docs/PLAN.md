@@ -227,23 +227,23 @@ This is the working plan for the Project Management MVP.
 
 ### Checklist
 
-- [ ] Add responsive sidebar chat UI aligned with project color scheme.
-- [ ] Support conversation history display and user input.
-- [ ] Wire sidebar to backend AI endpoint.
-- [ ] Apply AI-issued board updates and refresh board automatically.
-- [ ] Ensure mobile and desktop usability.
+- [x] Add responsive sidebar chat UI aligned with project color scheme.
+- [x] Support conversation history display and user input.
+- [x] Wire sidebar to backend AI endpoint.
+- [x] Apply AI-issued board updates and refresh board automatically.
+- [x] Ensure mobile and desktop usability.
 
 ### Tests
 
-- [ ] Frontend unit tests for chat UI state and rendering.
-- [ ] Integration tests for chat request/response and board refresh.
-- [ ] End-to-end scenario: user asks AI to modify board, UI updates automatically.
+- [x] Frontend unit tests for chat UI state and rendering.
+- [x] Integration tests for chat request/response and board refresh.
+- [x] End-to-end scenario: user asks AI to modify board, UI updates automatically.
 
 ### Success Criteria
 
-- [ ] AI chat sidebar is functional and responsive.
-- [ ] Board refreshes automatically after valid AI mutations.
-- [ ] No regressions in login, board interactions, or persistence.
+- [x] AI chat sidebar is functional and responsive.
+- [x] Board refreshes automatically after valid AI mutations.
+- [x] No regressions in login, board interactions, or persistence.
 
 ## Final Project Exit Criteria
 

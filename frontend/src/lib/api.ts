@@ -1,5 +1,13 @@
 import type { BoardData } from "@/lib/kanban";
 
+export type AIChatMessage = { role: string; content: string };
+
+export type AIChatResponse = {
+  assistantMessage: string;
+  applyBoardUpdate: boolean;
+  boardUpdated: boolean;
+};
+
 export class ApiError extends Error {
   status: number;
 
@@ -58,4 +66,24 @@ export const saveBoard = async (board: BoardData): Promise<BoardData> => {
   };
 
   return payload.board;
+};
+
+export const sendAIMessage = async (
+  message: string,
+  history: AIChatMessage[]
+): Promise<AIChatResponse> => {
+  const response = await fetch(
+    "/api/ai/chat",
+    withAuth({
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, history }),
+    })
+  );
+
+  if (!response.ok) {
+    throw new ApiError(await getErrorMessage(response), response.status);
+  }
+
+  return (await response.json()) as AIChatResponse;
 };
