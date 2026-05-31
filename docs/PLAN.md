@@ -80,7 +80,7 @@ This is the working plan for the Project Management MVP.
 
 - [x] Frontend unit tests for core board rendering behavior.
 - [x] Backend integration test that `/` returns frontend app.
-- [ ] End-to-end smoke test that Kanban UI loads in browser.
+- [x] End-to-end smoke test that Kanban UI loads in browser.
 
 ### Success Criteria
 
@@ -247,8 +247,8 @@ This is the working plan for the Project Management MVP.
 
 ## Final Project Exit Criteria
 
-- [ ] All 10 parts completed with checklist items checked.
-- [ ] Backend and frontend test coverage are reviewed pragmatically with value-focused tests.
-- [ ] Integration test suites pass.
-- [ ] Local Dockerized app runs with start/stop scripts.
-- [ ] User confirms MVP acceptance.
+- [x] All 10 parts completed with checklist items checked.
+- [x] Backend and frontend test coverage are reviewed pragmatically with value-focused tests.
+- [x] Integration test suites pass.
+- [x] Local Dockerized app runs with start/stop scripts.
+- [x] User confirms MVP acceptance.

@@ -172,6 +172,18 @@ def test_board_chat_raises_502_when_board_has_missing_card_ref(monkeypatch: pyte
     assert exc_info.value.status_code == 502
 
 
+def test_board_chat_raises_502_when_choices_missing(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+    mock = MagicMock(spec=httpx.Response)
+    mock.raise_for_status.return_value = None
+    mock.json.return_value = {"error": {"code": 429, "message": "Rate limit exceeded"}}
+    with patch("app.ai.httpx.post", return_value=mock):
+        with pytest.raises(HTTPException) as exc_info:
+            board_chat(_MINIMAL_BOARD_STATE, "hello", [])
+    assert exc_info.value.status_code == 502
+    assert "unexpected response format" in exc_info.value.detail
+
+
 # --- /api/ai/ping route unit tests ---
 
 @pytest.mark.anyio

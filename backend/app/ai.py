@@ -104,7 +104,14 @@ def board_chat(
             detail=f"OpenRouter request failed: {exc}",
         ) from exc
 
-    raw = response.json()["choices"][0]["message"]["content"]
+    data = response.json()
+    try:
+        raw = data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError) as exc:
+        raise HTTPException(
+            status_code=502,
+            detail="AI provider returned an unexpected response format",
+        ) from exc
 
     try:
         parsed = json_lib.loads(raw)
