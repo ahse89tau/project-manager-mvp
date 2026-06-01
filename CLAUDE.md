@@ -83,6 +83,10 @@ DB path defaults to `backend/data/pm.db`; override with `PM_SQLITE_PATH` env var
 
 The frontend fetches board state from `/api/board` on load and PUTs the full board on every mutation. The AI sidebar sends messages to `/api/ai/chat`; if `boardUpdated` is true in the response, the frontend re-fetches the board.
 
+## Scripts (`scripts/`)
+
+Start/stop scripts for Mac, Linux, and Windows. All run from project root and operate on the Docker container lifecycle. See `scripts/AGENTS.md` for naming conventions and safety rules.
+
 ## Color Scheme
 
 - Accent Yellow: `#ecad0a`

@@ -1,6 +1,8 @@
 import json
 import os
 import sqlite3
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
 
 from app.schemas import BoardState
@@ -72,7 +74,8 @@ def init_db() -> None:
     db_path = resolve_db_path()
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with sqlite3.connect(db_path) as conn:
+    conn = sqlite3.connect(db_path)
+    try:
         conn.execute("PRAGMA foreign_keys = ON")
         conn.execute(
             """
@@ -98,14 +101,19 @@ def init_db() -> None:
             "CREATE INDEX IF NOT EXISTS idx_boards_user_id ON boards(user_id)"
         )
         conn.commit()
+    finally:
+        conn.close()
 
 
-def get_connection() -> sqlite3.Connection:
-    init_db()
+@contextmanager
+def get_connection() -> Generator[sqlite3.Connection, None, None]:
     conn = sqlite3.connect(resolve_db_path())
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
-    return conn
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 def ensure_user(conn: sqlite3.Connection, username: str) -> int:
@@ -154,9 +162,6 @@ def update_board(conn: sqlite3.Connection, user_id: int, board: BoardState) -> B
         (board_json, user_id),
     )
     if cursor.rowcount == 0:
-        conn.execute(
-            "INSERT INTO boards (user_id, board_json) VALUES (?, ?)",
-            (user_id, board_json),
-        )
+        raise RuntimeError(f"Board not found for user_id={user_id}")
     conn.commit()
     return board

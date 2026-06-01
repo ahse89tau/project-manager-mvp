@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from app.ai import board_chat as ai_board_chat
@@ -86,15 +86,14 @@ def logout(response: Response) -> dict[str, bool]:
     return {"authenticated": False}
 
 
-def require_authenticated_username(request: Request) -> str:
+def get_authenticated_username(request: Request) -> str:
     if request.cookies.get(SESSION_COOKIE_NAME) != "1":
         raise HTTPException(status_code=401, detail="Authentication required")
     return DEMO_USERNAME
 
 
 @app.get("/api/board")
-def read_board(request: Request) -> dict:
-    username = require_authenticated_username(request)
+def read_board(username: str = Depends(get_authenticated_username)) -> dict:
     with get_connection() as conn:
         user_id = ensure_user(conn, username)
         board = get_or_create_board(conn, user_id)
@@ -102,8 +101,7 @@ def read_board(request: Request) -> dict:
 
 
 @app.put("/api/board")
-def save_board(payload: BoardState, request: Request) -> dict[str, object]:
-    username = require_authenticated_username(request)
+def save_board(payload: BoardState, username: str = Depends(get_authenticated_username)) -> dict[str, object]:
     with get_connection() as conn:
         user_id = ensure_user(conn, username)
         saved_board = update_board(conn, user_id, payload)
@@ -121,15 +119,13 @@ class AIChatRequest(BaseModel):
 
 
 @app.get("/api/ai/ping")
-def ai_ping(request: Request) -> dict[str, str]:
-    require_authenticated_username(request)
+def ai_ping(_: str = Depends(get_authenticated_username)) -> dict[str, str]:
     answer = ai_chat("What is 2+2? Answer with just the number.")
     return {"response": answer}
 
 
 @app.post("/api/ai/chat")
-def ai_chat_endpoint(payload: AIChatRequest, request: Request) -> dict:
-    username = require_authenticated_username(request)
+def ai_chat_endpoint(payload: AIChatRequest, username: str = Depends(get_authenticated_username)) -> dict:
 
     with get_connection() as conn:
         user_id = ensure_user(conn, username)

@@ -52,6 +52,7 @@ async def test_login_session_logout_flow() -> None:
 def sqlite_path(tmp_path, monkeypatch: pytest.MonkeyPatch):
     path = tmp_path / "pm-integration.db"
     monkeypatch.setenv(db.DB_PATH_ENV, str(path))
+    db.init_db()
     return path
 
 

@@ -11,6 +11,7 @@ from app.main import app
 def sqlite_path(tmp_path, monkeypatch: pytest.MonkeyPatch):
     path = tmp_path / "pm-ai-integration.db"
     monkeypatch.setenv(db.DB_PATH_ENV, str(path))
+    db.init_db()
     return path
 
 

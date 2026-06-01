@@ -223,9 +223,8 @@ async def test_ai_chat_requires_auth() -> None:
 
 
 @pytest.mark.anyio
-async def test_ai_chat_returns_message_only(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+async def test_ai_chat_returns_message_only(monkeypatch: pytest.MonkeyPatch, tmp_db) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
-    monkeypatch.setenv("PM_SQLITE_PATH", str(tmp_path / "test.db"))
     from app.schemas import AIKanbanResponse
     ai_resp = AIKanbanResponse.model_validate({
         "assistantMessage": "You have 1 card.",
@@ -244,9 +243,8 @@ async def test_ai_chat_returns_message_only(monkeypatch: pytest.MonkeyPatch, tmp
 
 
 @pytest.mark.anyio
-async def test_ai_chat_applies_board_update(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+async def test_ai_chat_applies_board_update(monkeypatch: pytest.MonkeyPatch, tmp_db) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
-    monkeypatch.setenv("PM_SQLITE_PATH", str(tmp_path / "test.db"))
     from app.schemas import AIKanbanResponse, BoardState
     updated = BoardState.model_validate(_UPDATED_BOARD)
     ai_resp = AIKanbanResponse.model_validate({
@@ -266,9 +264,8 @@ async def test_ai_chat_applies_board_update(monkeypatch: pytest.MonkeyPatch, tmp
 
 
 @pytest.mark.anyio
-async def test_ai_chat_propagates_502_on_ai_failure(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+async def test_ai_chat_propagates_502_on_ai_failure(monkeypatch: pytest.MonkeyPatch, tmp_db) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
-    monkeypatch.setenv("PM_SQLITE_PATH", str(tmp_path / "test.db"))
     with patch("app.main.ai_board_chat", side_effect=HTTPException(status_code=502, detail="AI error")):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             await client.post("/api/auth/login", json={"username": "user", "password": "password"})
@@ -277,9 +274,8 @@ async def test_ai_chat_propagates_502_on_ai_failure(monkeypatch: pytest.MonkeyPa
 
 
 @pytest.mark.anyio
-async def test_ai_chat_passes_history_to_board_chat(monkeypatch: pytest.MonkeyPatch, tmp_path) -> None:
+async def test_ai_chat_passes_history_to_board_chat(monkeypatch: pytest.MonkeyPatch, tmp_db) -> None:
     monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
-    monkeypatch.setenv("PM_SQLITE_PATH", str(tmp_path / "test.db"))
     from app.schemas import AIKanbanResponse
     ai_resp = AIKanbanResponse.model_validate({
         "assistantMessage": "OK.",

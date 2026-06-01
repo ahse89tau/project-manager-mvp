@@ -56,6 +56,10 @@ Run commands from `frontend/`.
 - Maintain frontend unit coverage toward project minimum `>=80%`.
 - Add/update Playwright tests for critical user flows when behavior changes across screens.
 
+## Intentional Scope Limits
+
+- Cards have no edit UI after creation. Title and details are set once via `NewCardForm` and cannot be changed. Only deletion is supported. This is an intentional MVP constraint.
+
 ## Integration Direction (Upcoming Parts)
 
 - Frontend will move from local in-memory state to backend APIs.

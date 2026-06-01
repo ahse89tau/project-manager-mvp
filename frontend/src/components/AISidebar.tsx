@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { sendAIMessage, type AIChatMessage } from "@/lib/api";
 
+type UIMessage = AIChatMessage & { id: string };
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -10,7 +12,7 @@ type Props = {
 };
 
 export const AISidebar = ({ isOpen, onClose, onBoardUpdated }: Props) => {
-  const [messages, setMessages] = useState<AIChatMessage[]>([]);
+  const [messages, setMessages] = useState<UIMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,8 +33,8 @@ export const AISidebar = ({ isOpen, onClose, onBoardUpdated }: Props) => {
     const text = input.trim();
     if (!text || isLoading) return;
 
-    const history = messages;
-    setMessages((prev) => [...prev, { role: "user", content: text }]);
+    const history: AIChatMessage[] = messages.map(({ role, content }) => ({ role, content }));
+    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", content: text }]);
     setInput("");
     setIsLoading(true);
     setError("");
@@ -41,7 +43,7 @@ export const AISidebar = ({ isOpen, onClose, onBoardUpdated }: Props) => {
       const response = await sendAIMessage(text, history);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: response.assistantMessage },
+        { id: crypto.randomUUID(), role: "assistant", content: response.assistantMessage },
       ]);
       if (response.boardUpdated) {
         onBoardUpdated();
@@ -109,9 +111,9 @@ export const AISidebar = ({ isOpen, onClose, onBoardUpdated }: Props) => {
           )}
 
           <div className="flex flex-col gap-3">
-            {messages.map((msg, i) => (
+            {messages.map((msg) => (
               <div
-                key={i}
+                key={msg.id}
                 className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div

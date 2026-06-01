@@ -44,6 +44,8 @@ describe("AuthGate", () => {
       expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
     });
 
+    await userEvent.type(screen.getByRole("textbox", { name: /username/i }), "bad");
+    await userEvent.type(screen.getByLabelText(/password/i), "wrong");
     await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
@@ -63,6 +65,8 @@ describe("AuthGate", () => {
       expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
     });
 
+    await userEvent.type(screen.getByRole("textbox", { name: /username/i }), "user");
+    await userEvent.type(screen.getByLabelText(/password/i), "password");
     await userEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {

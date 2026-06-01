@@ -1,21 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
+import type { BoardData } from "../src/lib/kanban";
 
-type BoardCard = {
-  id: string;
-  title: string;
-  details: string;
-};
-
-type BoardColumn = {
-  id: string;
-  title: string;
-  cardIds: string[];
-};
-
-type BoardData = {
-  columns: BoardColumn[];
-  cards: Record<string, BoardCard>;
-};
+// NOTE: All API calls are intercepted by mockBackend(). These tests validate
+// frontend behaviour and UI flows only — they do not exercise the real backend.
+// Full-stack integration is covered by backend/tests/integration/.
 
 const seedBoard = (): BoardData => ({
   columns: [
@@ -136,6 +124,8 @@ const mockBackend = async (page: Page) => {
 const login = async (page: Page) => {
   await page.goto("/");
   await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
+  await page.getByLabel("Username").fill("user");
+  await page.getByLabel("Password").fill("password");
   await page.getByRole("button", { name: /sign in/i }).click();
   await expect(page.locator('[data-testid^="column-"]')).toHaveCount(5);
 };

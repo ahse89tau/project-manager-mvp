@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { KanbanBoard } from "@/components/KanbanBoard";
 
-type AuthStatus = "authenticated" | "unauthenticated";
+type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
 const getErrorMessage = async (response: Response) => {
   try {
@@ -18,9 +18,9 @@ const getErrorMessage = async (response: Response) => {
 };
 
 export const AuthGate = () => {
-  const [authStatus, setAuthStatus] = useState<AuthStatus>("unauthenticated");
-  const [username, setUsername] = useState("user");
-  const [password, setPassword] = useState("password");
+  const [authStatus, setAuthStatus] = useState<AuthStatus>("loading");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -77,6 +77,10 @@ export const AuthGate = () => {
     });
     setAuthStatus("unauthenticated");
   };
+
+  if (authStatus === "loading") {
+    return null;
+  }
 
   if (authStatus === "unauthenticated") {
     return (

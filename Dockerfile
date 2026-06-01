@@ -20,8 +20,8 @@ WORKDIR /app/backend
 
 RUN pip install --no-cache-dir uv
 
-COPY backend/pyproject.toml /app/backend/pyproject.toml
-RUN uv sync --no-dev
+COPY backend/pyproject.toml backend/uv.lock /app/backend/
+RUN uv sync --frozen --no-dev
 
 COPY backend /app/backend
 COPY --from=frontend-builder /app/frontend/out /app/frontend-out
